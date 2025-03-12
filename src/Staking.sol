@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
+
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 contract StakingDapp is ReentrancyGuard {
@@ -99,7 +100,7 @@ contract StakingDapp is ReentrancyGuard {
         if (_duration <= 30 days) {
             yearlyReward = (_amount * 2) / 100; // 2% rocznie
         } else if (_duration <= 90 days) {
-            yearlyReward = (_amount * 5) / 100; // 5% rocznie
+            s yearlyReward = (_amount * 5) / 100; // 5% rocznie
         } else if (_duration <= 180 days) {
             yearlyReward = (_amount * 10) / 100; // 10% rocznie
         } else if (_duration <= 365 days) {
@@ -119,8 +120,12 @@ contract StakingDapp is ReentrancyGuard {
         minStakeTime = _time;
     }
 
-    function userGetStakeInfo(address _user) external view returns(uint256 stakedAmount, uint256 reward, uint256 stakingTime) {
-        return(s_stakes[_user], getReward(_user), s_stakesTimeStamps[_user]);
+    function userGetStakeInfo(address _user)
+        external
+        view
+        returns (uint256 stakedAmount, uint256 reward, uint256 stakingTime)
+    {
+        return (s_stakes[_user], getReward(_user), s_stakesTimeStamps[_user]);
     }
 
     function depositRewards() external payable onlyOwner {}
