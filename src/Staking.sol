@@ -16,10 +16,7 @@ contract StakingDapp is ReentrancyGuard {
     event Staked(address indexed user, uint256 amount);
     event Unstaked(address indexed user, uint256 amount, uint256 reward);
     event Paused(bool isPaused);
-    event OwnershipTransferred(
-        address indexed previousOwner,
-        address indexed newOwner
-    );
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
     event RewardWithdrawn(address indexed user, uint256 reward);
 
     modifier onlyOwner() {
@@ -63,13 +60,7 @@ contract StakingDapp is ReentrancyGuard {
         emit Staked(msg.sender, msg.value);
     }
 
-    function addStake()
-        public
-        payable
-        notPaused
-        hasEnoughETH(MIN_VALUE)
-        hasStaked
-    {
+    function addStake() public payable notPaused hasEnoughETH(MIN_VALUE) hasStaked {
         s_stakes[msg.sender] += msg.value;
         s_stakesTimeStamps[msg.sender] = block.timestamp;
         emit Staked(msg.sender, msg.value);
@@ -83,13 +74,9 @@ contract StakingDapp is ReentrancyGuard {
     }
 
     function unstake() public hasStaked nonReentrant {
-        require(
-            block.timestamp >= s_stakesTimeStamps[msg.sender] + minStakeTime,
-            "Staking duration is too short"
-        );
+        require(block.timestamp >= s_stakesTimeStamps[msg.sender] + minStakeTime, "Staking duration is too short");
         uint256 stakedAmount = s_stakes[msg.sender];
-        uint256 stakingDuration = block.timestamp -
-            s_stakesTimeStamps[msg.sender];
+        uint256 stakingDuration = block.timestamp - s_stakesTimeStamps[msg.sender];
 
         uint256 reward = calculateReward(stakedAmount, stakingDuration);
         if (stakingDuration < minStakeTime) {
@@ -101,19 +88,13 @@ contract StakingDapp is ReentrancyGuard {
         s_stakes[msg.sender] = 0;
         s_stakesTimeStamps[msg.sender] = 0;
 
-        require(
-            address(this).balance >= totalAmount,
-            "Not enough contract balance"
-        );
+        require(address(this).balance >= totalAmount, "Not enough contract balance");
         payable(msg.sender).transfer(totalAmount);
 
         emit Unstaked(msg.sender, stakedAmount, reward);
     }
 
-    function calculateReward(
-        uint256 _amount,
-        uint256 _duration
-    ) public pure returns (uint256) {
+    function calculateReward(uint256 _amount, uint256 _duration) public pure returns (uint256) {
         uint256 yearlyReward;
 
         if (_duration <= 30 days) {
@@ -139,9 +120,7 @@ contract StakingDapp is ReentrancyGuard {
         minStakeTime = _time;
     }
 
-    function userGetStakeInfo(
-        address _user
-    )
+    function userGetStakeInfo(address _user)
         external
         view
         returns (uint256 stakedAmount, uint256 reward, uint256 stakingTime)
