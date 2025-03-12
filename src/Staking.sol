@@ -39,7 +39,7 @@ contract StakingDapp is ReentrancyGuard {
         _;
     }
 
-    constructor() {
+    constructor() payable {
         owner = msg.sender;
     }
 
@@ -74,6 +74,7 @@ contract StakingDapp is ReentrancyGuard {
     }
 
     function unstake() public hasStaked nonReentrant  {
+        require(block.timestamp >= s_stakesTimeStamps[msg.sender] + minStakeTime, "Staking duration is too short");
         uint256 stakedAmount = s_stakes[msg.sender];
         uint256 stakingDuration = block.timestamp - s_stakesTimeStamps[msg.sender];
 
@@ -122,6 +123,8 @@ contract StakingDapp is ReentrancyGuard {
     }
     function getContractBalance() public view returns (uint256) {
     return address(this).balance;
-}
+    }
+    
+    
 }
 
