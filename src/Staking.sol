@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-contract StakingDapp {
+
+contract StakingDapp is ReentrancyGuard {
     address public owner;
     mapping(address => uint256) public s_stakes;
     mapping(address => uint256) public s_stakesTimeStamps;
@@ -47,10 +49,6 @@ contract StakingDapp {
         owner = newOwner;
     }
 
-    function setMinStakeTime(uint256 _time) public onlyOwner {
-        minStakeTime = _time;
-    }
-
     function pauseStaking() public onlyOwner {
         paused = !paused;
         emit Paused(paused);
@@ -75,7 +73,7 @@ contract StakingDapp {
         return calculateReward(stakedAmount, stakingDuration);
     }
 
-    function unstake() public hasStaked {
+    function unstake() public hasStaked nonReentrant  {
         uint256 stakedAmount = s_stakes[msg.sender];
         uint256 stakingDuration = block.timestamp - s_stakesTimeStamps[msg.sender];
 
@@ -107,9 +105,23 @@ contract StakingDapp {
         uint256 reward = (yearlyReward * _duration) / 365 days;
         return reward;
     }
+    function setMinStakeTime(uint256 _time) public onlyOwner {
+    require(_time >= 7 days, "Minimum stake time too low");
+    minStakeTime = _time;
+    }
+    function userGetStakeInfo(address _user)external view returns(uint256 stakedAmount, uint256 reward, uint256 stakingTime) {
+        return(s_stakes[_user], getReward(_user), s_stakesTimeStamps[_user]);
+        
+    }
+
+    function depositRewards() external payable onlyOwner {}
+
 
     function getOwner() external view returns (address) {
         return owner;
     }
+    function getContractBalance() public view returns (uint256) {
+    return address(this).balance;
+}
 }
 

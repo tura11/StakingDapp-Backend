@@ -8,10 +8,10 @@ contract StakingDappTest is Test {
     StakingDapp public stakingDapp;
     address newOwner = address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
     address user = address(0x976EA74026E726554dB657fA54763abd0C3a0aa9);
+    
+    
     function setUp() public {
-        stakingDapp = new StakingDapp();
-        
-        
+        stakingDapp = new StakingDapp();  
     }
 
     function testOwnerIsMsgSender() public {
@@ -39,9 +39,18 @@ contract StakingDappTest is Test {
         stakingDapp.stake{value: 1 ether}();
         vm.stopPrank();
         assertEq(stakingDapp.s_stakes(user), 1 ether);
+    }
+    function testStakeTimestamp() public {
+        vm.prank(user);
+        vm.deal(user,10 ether);
 
+        uint256 initialTimeStamp = stakingDapp.s_stakesTimeStamps(user);
 
-        
+        stakingDapp.stake{value: 1 ether}();
+
+        uint256 finalTimeStamp = stakingDapp.s_stakesTimeStamps(user);
+
+        assertTrue(finalTimeStamp > initialTimeStamp, "The stake timestamp should be updated after staking.");
     }
 
 
